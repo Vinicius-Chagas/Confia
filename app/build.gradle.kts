@@ -3,7 +3,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.denunciaain"
+    namespace = "com.example.denunciaai"
     compileSdk = 35
 
     defaultConfig {

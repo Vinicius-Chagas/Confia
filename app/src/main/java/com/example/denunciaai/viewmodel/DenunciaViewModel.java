@@ -125,6 +125,7 @@ public class DenunciaViewModel extends ViewModel {
                     submitSuccess.setValue(true);
                 } else {
                     errorMessage.setValue("Erro ao enviar denúncia: " + response.code());
+                    submitSuccess.setValue(true);
                 }
             }
 
@@ -132,6 +133,7 @@ public class DenunciaViewModel extends ViewModel {
             public void onFailure(Call<Object> call, Throwable t) {
                 isLoading.setValue(false);
                 errorMessage.setValue("Erro ao enviar denúncia: " + t.getMessage());
+                submitSuccess.setValue(true); // Add this line
             }
         });
     }

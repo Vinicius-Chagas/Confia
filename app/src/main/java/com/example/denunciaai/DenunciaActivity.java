@@ -4,6 +4,7 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
@@ -24,7 +25,7 @@ import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.denunciaai.viewmodel.DenunciaViewModel;
-import com.example.denunciaain.R;
+import com.example.denunciaai.R;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 
@@ -205,9 +206,10 @@ public class DenunciaActivity extends AppCompatActivity {
     }
 
     private void showSuccessDialog() {
-        SuccessDialogFragment dialog = new SuccessDialogFragment();
-        dialog.setCancelable(false);
-        dialog.show(getSupportFragmentManager(), "SuccessDialog");
+        // Replace dialog with activity navigation
+        Intent intent = new Intent(this, SuccessActivity.class);
+        startActivity(intent);
+        finish(); // Close the current activity
     }
 
     private void updateCoordinatesUI() {

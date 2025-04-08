@@ -15,7 +15,7 @@
     <string name="btn_enviar_denuncia">Enviar denúncia</string>
     <string name="title_denuncia_enviada">Denúncia Enviada!</string>
     <string name="msg_denuncia_enviada_sucesso">Sua denúncia foi enviada com sucesso. Obrigado por contribuir para a segurança da comunidade.</string>
-    <string name="btn_ok">OK</string>
+    <string name="btn_ok">Voltar ao início</string>
     <string name="desc_success_icon">Ícone de sucesso</string>
     <string name="error_location">Não foi possível obter sua localização</string>
     <string name="permission_location_rationale">Precisamos da permissão de localização para esta funcionalidade</string>
