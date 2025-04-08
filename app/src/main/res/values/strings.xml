@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Confia!</string>
+    <string name="main_subtitle">Escolha uma opção abaixo</string>
+    <string name="btn_realizar_denuncia">Realizar Denúncia</string>
+    <string name="btn_acesso_policial">Acesso Policial</string>
+    <string name="title_denuncia_anonima">Denúncia Anônima</string>
+    <string name="label_tipo_atividade">Tipo de atividade</string>
+    <string name="label_localizacao">Localização</string>
+    <string name="btn_usar_localizacao_atual">Usar localização atual</string>
+    <string name="label_data_hora">Data e Hora da ocorrência</string>
+    <string name="hint_data_hora">DD/MM/AA HH:mm</string>
+    <string name="label_descricao">Descrição da ocorrência</string>
+    <string name="hint_descricao">Descreva detalhes relevantes da ocorrência</string>
+    <string name="btn_enviar_denuncia">Enviar denúncia</string>
+    <string name="title_denuncia_enviada">Denúncia Enviada!</string>
+    <string name="msg_denuncia_enviada_sucesso">Sua denúncia foi enviada com sucesso. Obrigado por contribuir para a segurança da comunidade.</string>
+    <string name="btn_ok">OK</string>
+    <string name="desc_success_icon">Ícone de sucesso</string>
+    <string name="error_location">Não foi possível obter sua localização</string>
+    <string name="permission_location_rationale">Precisamos da permissão de localização para esta funcionalidade</string>
+    <string name="permission_denied">Permissão negada. A funcionalidade não estará disponível</string>
+    <string name="coordenadas_formato">Lat: %1$.4f, Long: %2$.4f</string>
+     <string-array name="tipos_de_atividade">
+     <item>Selecione uma atividade</item>
+     <item>Atividade suspeita</item>
+     <item>Perturbação do sossego</item>
+     <item>Vandalismo</item>
+    <item>Roubo</item>
+    <item>Assalto</item>
+     <item>Outros</item>
+ </string-array>
+
+</resources>
