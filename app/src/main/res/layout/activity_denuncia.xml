@@ -83,14 +83,18 @@
                     app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/spinnerTipoAtividade" />
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnUsarLocalizacao"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:background="@drawable/input"
-                    android:drawableStart="@drawable/location"
-                    android:drawablePadding="8dp"
+                    android:background="@drawable/input"                    
+                    app:backgroundTint="@null"
+                    app:cornerRadius="8dp"
+                    app:icon="@drawable/location"
+                    app:iconGravity="textEnd"
+                    app:iconPadding="8dp"
+                    android:drawablePadding="0dp"
                     android:text="@string/btn_usar_localizacao_atual"
                     android:textColor="@color/colorWhite"
                     app:layout_constraintLeft_toLeftOf="parent"
@@ -161,7 +165,7 @@
                     android:gravity="top|start"
                     android:hint="@string/hint_descricao"
                     android:inputType="textMultiLine"
-                    android:lines="6"
+                    android:lines="10"
                     android:padding="8dp"
                     android:textColor="@color/colorWhite"
                     android:textColorHint="@color/colorWhite"
@@ -171,19 +175,22 @@
                     app:layout_constraintTop_toBottomOf="@id/tvDescricaoLabel"
                     app:layout_constraintVertical_bias="0.18" />
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnEnviarDenuncia"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
                     android:layout_marginBottom="8dp"
                     android:background="@drawable/gradient_button_background"
                     android:enabled="false"
                     android:text="@string/btn_enviar_denuncia"
                     android:textColor="@color/colorWhite"
                     android:textStyle="bold"
+                    app:backgroundTint="@null"
                     app:layout_constraintBottom_toTopOf="@id/btnBack"
                     app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintRight_toRightOf="parent" />
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/etDescricao" />
 
                 <ProgressBar
                     android:id="@+id/progressBar"
@@ -200,12 +207,14 @@
                     android:id="@+id/btnBack"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
                     android:layout_marginBottom="16dp"
                     android:text="← Voltar"
                     android:textColor="@color/colorWhite"
                     android:textSize="18sp"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent" />
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/btnEnviarDenuncia" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.cardview.widget.CardView>
