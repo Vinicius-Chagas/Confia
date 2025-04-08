@@ -157,7 +157,7 @@
 
                 <EditText
                     android:id="@+id/etDescricao"
-                    android:layout_width="375dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="215dp"
                     android:layout_marginTop="8dp"
                     android:layout_marginBottom="8dp"
@@ -182,7 +182,7 @@
                     android:layout_marginTop="8dp"
                     android:layout_marginBottom="8dp"
                     android:background="@drawable/gradient_button_background"
-                    android:enabled="false"
+                    android:enabled="true"
                     android:text="@string/btn_enviar_denuncia"
                     android:textColor="@color/colorWhite"
                     android:textStyle="bold"

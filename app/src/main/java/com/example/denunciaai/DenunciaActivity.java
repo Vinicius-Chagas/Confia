@@ -91,16 +91,15 @@ public class DenunciaActivity extends AppCompatActivity {
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 if (position > 0) {
                     viewModel.setSelectedCategory(categorias[position]);
+                    spinnerTipoAtividade.setBackgroundResource(R.drawable.input);
                 } else {
                     viewModel.setSelectedCategory("");
                 }
-                updateSubmitButtonState();
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
                 viewModel.setSelectedCategory("");
-                updateSubmitButtonState();
             }
         });
 
@@ -110,33 +109,81 @@ public class DenunciaActivity extends AppCompatActivity {
 
         etDescricao.setOnFocusChangeListener((v, hasFocus) -> {
             if (!hasFocus) {
-                viewModel.setDescription(etDescricao.getText().toString());
-                updateSubmitButtonState();
+                String description = etDescricao.getText().toString();
+                viewModel.setDescription(description);
+                if (!description.isEmpty()) {
+                    etDescricao.setBackgroundResource(R.drawable.input);
+                }
             }
         });
 
         btnEnviarDenuncia.setOnClickListener(v -> {
-            viewModel.setDescription(etDescricao.getText().toString());
-            viewModel.submitDenuncia();
+            if (validateFields()) {
+                viewModel.setDescription(etDescricao.getText().toString());
+                viewModel.submitDenuncia();
+            }
         });
     }
 
+    private boolean validateFields() {
+        boolean isValid = true;
+        
+        // Validate spinner (category)
+        String category = viewModel.getSelectedCategory().getValue();
+        if (category == null || category.isEmpty() || category.equals("Selecione uma atividade")) {
+            spinnerTipoAtividade.setBackgroundResource(R.drawable.input_error);
+            isValid = false;
+        } else {
+            spinnerTipoAtividade.setBackgroundResource(R.drawable.input);
+        }
+        
+        // Validate date/time
+        String dateTime = viewModel.getDateTimeString().getValue();
+        if (dateTime == null || dateTime.isEmpty()) {
+            etDataHora.setBackgroundResource(R.drawable.input_error);
+            isValid = false;
+        } else {
+            etDataHora.setBackgroundResource(R.drawable.input);
+        }
+        
+        // Validate description
+        String description = etDescricao.getText().toString();
+        if (description.isEmpty()) {
+            etDescricao.setBackgroundResource(R.drawable.input_error);
+            isValid = false;
+        } else {
+            etDescricao.setBackgroundResource(R.drawable.input);
+        }
+
+        System.out.println("Validating fields: " + isValid);
+        
+        // Show toast if validation fails
+        if (!isValid) {
+            Toast.makeText(this, "Por favor, verifique os campos destacados e tente novamente", 
+                    Toast.LENGTH_LONG).show();
+        }
+        
+        return isValid;
+    }
+
     private void observeViewModel() {
-        viewModel.getSelectedCategory().observe(this, category -> updateSubmitButtonState());
+        viewModel.getSelectedCategory().observe(this, category -> {
+            // Don't need to update submit button state here anymore
+        });
         
         viewModel.getLatitude().observe(this, latitude -> {
             updateCoordinatesUI();
-            updateSubmitButtonState();
         });
 
         viewModel.getLongitude().observe(this, longitude -> {
             updateCoordinatesUI();
-            updateSubmitButtonState();
         });
 
         viewModel.getDateTimeString().observe(this, dateTime -> {
             etDataHora.setText(dateTime);
-            updateSubmitButtonState();
+            if (dateTime != null && !dateTime.isEmpty()) {
+                etDataHora.setBackgroundResource(R.drawable.input);
+            }
         });
 
         viewModel.isLoading().observe(this, isLoading -> {
@@ -170,30 +217,6 @@ public class DenunciaActivity extends AppCompatActivity {
                     viewModel.getLongitude().getValue()));
             tvCoordenadasAtual.setVisibility(View.VISIBLE);
         }
-    }
-
-    private void updateSubmitButtonState() {
-        boolean isValid = true;
-        
-        // Check category
-        if (viewModel.getSelectedCategory().getValue() == null || 
-                viewModel.getSelectedCategory().getValue().isEmpty()) {
-            isValid = false;
-        }
-        
-        // Check date/time
-        if (viewModel.getDateTimeString().getValue() == null || 
-                viewModel.getDateTimeString().getValue().isEmpty()) {
-            isValid = false;
-        }
-        
-        // Check description
-        String description = etDescricao.getText().toString();
-        if (description.isEmpty()) {
-            isValid = false;
-        }
-        
-        btnEnviarDenuncia.setEnabled(isValid);
     }
 
     private void requestLocation() {
