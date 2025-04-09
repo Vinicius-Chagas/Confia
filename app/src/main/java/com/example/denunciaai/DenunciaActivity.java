@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -17,6 +18,7 @@ import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.location.LocationManager;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -26,8 +28,13 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.example.denunciaai.viewmodel.DenunciaViewModel;
 import com.example.denunciaai.R;
+import android.content.Context;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationResult;
+import android.os.Looper;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -47,6 +54,9 @@ public class DenunciaActivity extends AppCompatActivity {
     private Button btnEnviarDenuncia;
     private ProgressBar progressBar;
     private TextView btnBack;
+
+    private LocationCallback locationCallback;
+    private Handler timeoutHandler;
 
     private Calendar selectedCalendar;
     private final String[] categorias = {"Selecione", "Atividade Suspeita", "Vandalismo", "Roubo", "Outro"};
@@ -206,10 +216,9 @@ public class DenunciaActivity extends AppCompatActivity {
     }
 
     private void showSuccessDialog() {
-        // Replace dialog with activity navigation
-        Intent intent = new Intent(this, SuccessActivity.class);
+        Intent intent = new Intent(DenunciaActivity.this, SuccessActivity.class);
         startActivity(intent);
-        finish(); // Close the current activity
+        finish();
     }
 
     private void updateCoordinatesUI() {
@@ -232,20 +241,91 @@ public class DenunciaActivity extends AppCompatActivity {
         }
     }
 
-    @SuppressLint("MissingPermission") // Permission check is done in requestLocation()
-    private void getLastLocation() {
-        fusedLocationClient.getLastLocation()
-                .addOnSuccessListener(this, location -> {
-                    if (location != null) {
-                        viewModel.setLocation(location.getLatitude(), location.getLongitude());
-                    } else {
-                        Toast.makeText(this, R.string.error_location, Toast.LENGTH_SHORT).show();
-                    }
-                })
-                .addOnFailureListener(e -> 
-                        Toast.makeText(this, R.string.error_location, Toast.LENGTH_SHORT).show());
+@SuppressLint("MissingPermission")
+private void getLastLocation() {
+    // First check if location is enabled
+    LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+    if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+        Toast.makeText(this, "Por favor, ative a localização do dispositivo", Toast.LENGTH_LONG).show();
+        startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+        return;
     }
+    
+    Toast.makeText(this, "Obtendo localização...", Toast.LENGTH_SHORT).show();
+    
+    // Create location request with appropriate settings
+    LocationRequest locationRequest = LocationRequest.create();
+    locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+    locationRequest.setInterval(10000);  // 10 seconds
+    locationRequest.setFastestInterval(5000); // 5 seconds
+    locationRequest.setNumUpdates(1);
+    
+    // Set up a timeout
+    timeoutHandler = new Handler(Looper.getMainLooper());
+    timeoutHandler.postDelayed(new Runnable() {
+        @Override
+        public void run() {
+            if (locationCallback != null) {
+                Toast.makeText(DenunciaActivity.this, "Tempo esgotado ao obter localização", Toast.LENGTH_SHORT).show();
+                fusedLocationClient.removeLocationUpdates(locationCallback);
+            }
+        }
+    }, 30000); // 30 second timeout
+    
+    // Keep reference to callback to prevent GC
+    locationCallback = new LocationCallback() {
+        @Override
+        public void onLocationResult(LocationResult locationResult) {
+            // Clear the timeout
+            timeoutHandler.removeCallbacksAndMessages(null);
+            
+            if (locationResult == null || locationResult.getLocations().isEmpty()) {
+                Toast.makeText(DenunciaActivity.this, 
+                    "Não foi possível obter localização", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            
+            // Get the latest location
+            Location location = locationResult.getLocations().get(0);
+            Toast.makeText(DenunciaActivity.this, 
+                "Localização obtida com sucesso!", Toast.LENGTH_SHORT).show();
+                
+            viewModel.setLocation(location.getLatitude(), location.getLongitude());
+            
+            // Remove updates after we get the location
+            fusedLocationClient.removeLocationUpdates(locationCallback);
+        }
+    };
+    
+    try {
+        fusedLocationClient.requestLocationUpdates(
+            locationRequest, 
+            locationCallback, 
+            Looper.getMainLooper()
+        ).addOnFailureListener(e -> {
+            Toast.makeText(DenunciaActivity.this, 
+                "Erro ao obter localização: " + e.getMessage(), 
+                Toast.LENGTH_SHORT).show();
+        });
+    } catch (Exception e) {
+        Toast.makeText(this, "Erro: " + e.getMessage(), Toast.LENGTH_LONG).show();
+    }
+}
 
+// Add this method to your activity
+@Override
+protected void onDestroy() {
+    super.onDestroy();
+    
+    // Clean up location resources
+    if (fusedLocationClient != null && locationCallback != null) {
+        fusedLocationClient.removeLocationUpdates(locationCallback);
+    }
+    
+    if (timeoutHandler != null) {
+        timeoutHandler.removeCallbacksAndMessages(null);
+    }
+}
     private void showDateTimePickers() {
         DatePickerDialog datePickerDialog = new DatePickerDialog(
                 this,

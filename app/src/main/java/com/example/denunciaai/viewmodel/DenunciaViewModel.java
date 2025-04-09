@@ -114,28 +114,31 @@ public class DenunciaViewModel extends ViewModel {
                 isoDateTime
         );
 
-        ApiService apiService = ApiClient.getClient().create(ApiService.class);
-        Call<Object> call = apiService.enviarDenuncia(denuncia);
+        // ApiService apiService = ApiClient.getClient().create(ApiService.class);
+        // Call<Object> call = apiService.enviarDenuncia(denuncia);
 
-        call.enqueue(new Callback<Object>() {
-            @Override
-            public void onResponse(Call<Object> call, Response<Object> response) {
-                isLoading.setValue(false);
-                if (response.isSuccessful()) {
-                    submitSuccess.setValue(true);
-                } else {
-                    errorMessage.setValue("Erro ao enviar denúncia: " + response.code());
-                    submitSuccess.setValue(true);
-                }
-            }
+        isLoading.setValue(false);
+        submitSuccess.setValue(true);
 
-            @Override
-            public void onFailure(Call<Object> call, Throwable t) {
-                isLoading.setValue(false);
-                errorMessage.setValue("Erro ao enviar denúncia: " + t.getMessage());
-                submitSuccess.setValue(true); // Add this line
-            }
-        });
+        // call.enqueue(new Callback<Object>() {
+        //     @Override
+        //     public void onResponse(Call<Object> call, Response<Object> response) {
+        //         isLoading.setValue(false);
+        //         if (response.isSuccessful()) {
+        //             submitSuccess.setValue(true);
+        //         } else {
+        //             errorMessage.setValue("Erro ao enviar denúncia: " + response.code());
+        //             submitSuccess.setValue(true);
+        //         }
+        //     }
+
+        //     @Override
+        //     public void onFailure(Call<Object> call, Throwable t) {
+        //         isLoading.setValue(false);
+        //         errorMessage.setValue("Erro ao enviar denúncia: " + t.getMessage());
+        //         submitSuccess.setValue(true); // Add this line
+        //     }
+        // });
     }
 
     private String convertToISODateTime(String displayDateTime) {
