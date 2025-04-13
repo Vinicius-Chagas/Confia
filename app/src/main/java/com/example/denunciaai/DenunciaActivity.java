@@ -42,6 +42,8 @@ import java.util.Locale;
 
 public class DenunciaActivity extends AppCompatActivity {
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1001;
+    public static final String EXTRA_IS_VIEW_MODE = "is_view_mode";
+    public static final String EXTRA_DENUNCIA_ID = "denuncia_id";
     
     private DenunciaViewModel viewModel;
     private FusedLocationProviderClient fusedLocationClient;
@@ -52,6 +54,7 @@ public class DenunciaActivity extends AppCompatActivity {
     private EditText etDataHora;
     private EditText etDescricao;
     private Button btnEnviarDenuncia;
+    private Button btnMarcarConcluida;  // New button for marking as concluded
     private ProgressBar progressBar;
     private TextView btnBack;
 
@@ -59,6 +62,7 @@ public class DenunciaActivity extends AppCompatActivity {
     private Handler timeoutHandler;
 
     private Calendar selectedCalendar;
+    private boolean isViewMode = false;
     private final String[] categorias = {"Selecione", "Atividade Suspeita", "Vandalismo", "Roubo", "Outro"};
 
     @Override
@@ -70,7 +74,24 @@ public class DenunciaActivity extends AppCompatActivity {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         selectedCalendar = Calendar.getInstance();
         
+        // Check if we're in view mode
+        isViewMode = getIntent().getBooleanExtra(EXTRA_IS_VIEW_MODE, false);
+        viewModel.setViewMode(isViewMode);
+        
+        if (isViewMode) {
+            int denunciaId = getIntent().getIntExtra(EXTRA_DENUNCIA_ID, -1);
+            if (denunciaId != -1) {
+                viewModel.setDenunciaId(denunciaId);
+                viewModel.fetchDenunciaById(denunciaId);
+            } else {
+                Toast.makeText(this, "ID da denúncia não fornecido", Toast.LENGTH_SHORT).show();
+                finish();
+                return;
+            }
+        }
+        
         initViews();
+        setupViewModeUI();
         setupListeners();
         observeViewModel();
     }
@@ -82,6 +103,7 @@ public class DenunciaActivity extends AppCompatActivity {
         etDataHora = findViewById(R.id.etDataHora);
         etDescricao = findViewById(R.id.etDescricao);
         btnEnviarDenuncia = findViewById(R.id.btnEnviarDenuncia);
+        btnMarcarConcluida = findViewById(R.id.btnMarcarConcluida);  // Add this to your layout
         progressBar = findViewById(R.id.progressBar);
         btnBack = findViewById(R.id.btnBack);
         
@@ -92,6 +114,27 @@ public class DenunciaActivity extends AppCompatActivity {
                 getResources().getStringArray(R.array.tipos_de_atividade));
         adapter.setDropDownViewResource(R.layout.spinner_dropdown_item_white);
         spinnerTipoAtividade.setAdapter(adapter);
+    }
+    
+    private void setupViewModeUI() {
+        if (isViewMode) {
+            setTitle("Visualizar Denúncia");
+            
+            // Disable all input fields in view mode
+            spinnerTipoAtividade.setEnabled(false);
+            btnUsarLocalizacao.setEnabled(false);
+            etDataHora.setEnabled(false);
+            etDescricao.setEnabled(false);
+            
+            // Change button visibility
+            btnEnviarDenuncia.setVisibility(View.GONE);
+            btnMarcarConcluida.setVisibility(View.VISIBLE);
+        } else {
+            setTitle("Nova Denúncia");
+            
+            // Hide the "Marcar como Concluída" button in create mode
+            btnMarcarConcluida.setVisibility(View.GONE);
+        }
     }
 
     private void setupListeners() {
@@ -116,7 +159,11 @@ public class DenunciaActivity extends AppCompatActivity {
 
         btnUsarLocalizacao.setOnClickListener(v -> requestLocation());
 
-        etDataHora.setOnClickListener(v -> showDateTimePickers());
+        etDataHora.setOnClickListener(v -> {
+            if (!isViewMode) {
+                showDateTimePickers();
+            }
+        });
 
         etDescricao.setOnFocusChangeListener((v, hasFocus) -> {
             if (!hasFocus) {
@@ -134,9 +181,24 @@ public class DenunciaActivity extends AppCompatActivity {
                 viewModel.submitDenuncia();
             }
         });
+        
+        // Setup listener for the "Marcar como Concluída" button
+        btnMarcarConcluida.setOnClickListener(v -> {
+            int denunciaId = viewModel.getDenunciaId().getValue();
+            if (denunciaId != null) {
+                viewModel.markAsConcluded(denunciaId);
+            } else {
+                Toast.makeText(DenunciaActivity.this, 
+                        "Não foi possível concluir a denúncia", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private boolean validateFields() {
+        if (isViewMode) {
+            return true;  // No validation needed in view mode
+        }
+        
         boolean isValid = true;
         
         // Validate spinner (category)
@@ -165,7 +227,7 @@ public class DenunciaActivity extends AppCompatActivity {
         } else {
             etDescricao.setBackgroundResource(R.drawable.input);
         }
-
+        
         System.out.println("Validating fields: " + isValid);
         
         // Show toast if validation fails
@@ -179,7 +241,15 @@ public class DenunciaActivity extends AppCompatActivity {
 
     private void observeViewModel() {
         viewModel.getSelectedCategory().observe(this, category -> {
-            // Don't need to update submit button state here anymore
+            // Update spinner selection if in view mode
+            if (isViewMode && category != null && !category.isEmpty()) {
+                for (int i = 0; i < categorias.length; i++) {
+                    if (categorias[i].equals(category)) {
+                        spinnerTipoAtividade.setSelection(i);
+                        break;
+                    }
+                }
+            }
         });
         
         viewModel.getLatitude().observe(this, latitude -> {
@@ -196,10 +266,17 @@ public class DenunciaActivity extends AppCompatActivity {
                 etDataHora.setBackgroundResource(R.drawable.input);
             }
         });
+        
+        viewModel.getDescription().observe(this, description -> {
+            if (!etDescricao.getText().toString().equals(description)) {
+                etDescricao.setText(description);
+            }
+        });
 
         viewModel.isLoading().observe(this, isLoading -> {
             progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
             btnEnviarDenuncia.setEnabled(!isLoading);
+            btnMarcarConcluida.setEnabled(!isLoading);
         });
 
         viewModel.getErrorMessage().observe(this, errorMsg -> {
@@ -211,6 +288,14 @@ public class DenunciaActivity extends AppCompatActivity {
         viewModel.isSubmitSuccess().observe(this, isSuccess -> {
             if (isSuccess) {
                 showSuccessDialog();
+            }
+        });
+        
+        viewModel.isMarkAsConcludedSuccess().observe(this, isSuccess -> {
+            if (isSuccess) {
+                Toast.makeText(this, "Denúncia marcada como concluída com sucesso!", 
+                        Toast.LENGTH_SHORT).show();
+                finish(); // Return to the list
             }
         });
     }

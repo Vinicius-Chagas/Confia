@@ -27,6 +27,9 @@ public class DenunciaViewModel extends ViewModel {
     private final MutableLiveData<Boolean> isLoading = new MutableLiveData<>(false);
     private final MutableLiveData<Boolean> submitSuccess = new MutableLiveData<>(false);
     private final MutableLiveData<String> errorMessage = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> isViewMode = new MutableLiveData<>(false);
+    private final MutableLiveData<Integer> denunciaId = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> markAsConcludedSuccess = new MutableLiveData<>(false);
 
     public LiveData<String> getSelectedCategory() {
         return selectedCategory;
@@ -77,6 +80,26 @@ public class DenunciaViewModel extends ViewModel {
         return errorMessage;
     }
 
+    public LiveData<Boolean> isViewMode() {
+        return isViewMode;
+    }
+
+    public void setViewMode(boolean viewMode) {
+        isViewMode.setValue(viewMode);
+    }
+
+    public LiveData<Integer> getDenunciaId() {
+        return denunciaId;
+    }
+
+    public void setDenunciaId(int id) {
+        denunciaId.setValue(id);
+    }
+
+    public LiveData<Boolean> isMarkAsConcludedSuccess() {
+        return markAsConcludedSuccess;
+    }
+
     public boolean validateForm() {
         if (selectedCategory.getValue() == null || selectedCategory.getValue().isEmpty()) {
             errorMessage.setValue("Selecione um tipo de atividade");
@@ -114,31 +137,97 @@ public class DenunciaViewModel extends ViewModel {
                 isoDateTime
         );
 
-        // ApiService apiService = ApiClient.getClient().create(ApiService.class);
-        // Call<Object> call = apiService.enviarDenuncia(denuncia);
+        ApiService apiService = ApiClient.getClient().create(ApiService.class);
+        Call<Object> call = apiService.enviarDenuncia(denuncia);
 
-        isLoading.setValue(false);
-        submitSuccess.setValue(true);
+        call.enqueue(new Callback<Object>() {
+            @Override
+            public void onResponse(Call<Object> call, Response<Object> response) {
+                isLoading.setValue(false);
+                if (response.isSuccessful()) {
+                    submitSuccess.setValue(true);
+                } else {
+                    errorMessage.setValue("Erro ao enviar denúncia: " + response.code());
 
-        // call.enqueue(new Callback<Object>() {
-        //     @Override
-        //     public void onResponse(Call<Object> call, Response<Object> response) {
-        //         isLoading.setValue(false);
-        //         if (response.isSuccessful()) {
-        //             submitSuccess.setValue(true);
-        //         } else {
-        //             errorMessage.setValue("Erro ao enviar denúncia: " + response.code());
-        //             submitSuccess.setValue(true);
-        //         }
-        //     }
+                }
+            }
 
-        //     @Override
-        //     public void onFailure(Call<Object> call, Throwable t) {
-        //         isLoading.setValue(false);
-        //         errorMessage.setValue("Erro ao enviar denúncia: " + t.getMessage());
-        //         submitSuccess.setValue(true); // Add this line
-        //     }
-        // });
+            @Override
+            public void onFailure(Call<Object> call, Throwable t) {
+                isLoading.setValue(false);
+                errorMessage.setValue("Erro ao enviar denúncia: " + t.getMessage());
+                System.out.println(t.getMessage());
+
+            }
+        });
+    }
+
+    public void fetchDenunciaById(int id) {
+        isLoading.setValue(true);
+        
+        ApiService apiService = ApiClient.getClient().create(ApiService.class);
+        Call<Denuncia> call = apiService.getDenunciaById(id);
+        
+        call.enqueue(new Callback<Denuncia>() {
+            @Override
+            public void onResponse(Call<Denuncia> call, Response<Denuncia> response) {
+                isLoading.setValue(false);
+                if (response.isSuccessful() && response.body() != null) {
+                    Denuncia denuncia = response.body();
+                    description.setValue(denuncia.getDescricao());
+                    selectedCategory.setValue(denuncia.getCategoria());
+                    latitude.setValue(denuncia.getLatitude());
+                    longitude.setValue(denuncia.getLongitude());
+                    
+                    // Convert ISO datetime to display format
+                    try {
+                        SimpleDateFormat isoFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault());
+                        isoFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+                        Date date = isoFormat.parse(denuncia.getDateTime());
+                        
+                        SimpleDateFormat displayFormat = new SimpleDateFormat("dd/MM/yy HH:mm", Locale.getDefault());
+                        if (date != null) {
+                            dateTimeString.setValue(displayFormat.format(date));
+                        }
+                    } catch (ParseException e) {
+                        dateTimeString.setValue(denuncia.getDateTime());
+                    }
+                } else {
+                    errorMessage.setValue("Erro ao buscar denúncia: " + response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Denuncia> call, Throwable t) {
+                isLoading.setValue(false);
+                errorMessage.setValue("Erro ao buscar denúncia: " + t.getMessage());
+            }
+        });
+    }
+    
+    public void markAsConcluded(int id) {
+        isLoading.setValue(true);
+        
+        ApiService apiService = ApiClient.getClient().create(ApiService.class);
+        Call<Object> call = apiService.markDenunciaAsConcluded(id);
+        
+        call.enqueue(new Callback<Object>() {
+            @Override
+            public void onResponse(Call<Object> call, Response<Object> response) {
+                isLoading.setValue(false);
+                if (response.isSuccessful()) {
+                    markAsConcludedSuccess.setValue(true);
+                } else {
+                    errorMessage.setValue("Erro ao marcar denúncia como concluída: " + response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Object> call, Throwable t) {
+                isLoading.setValue(false);
+                errorMessage.setValue("Erro ao marcar denúncia como concluída: " + t.getMessage());
+            }
+        });
     }
 
     private String convertToISODateTime(String displayDateTime) {

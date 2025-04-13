@@ -3,7 +3,6 @@ package com.example.denunciaai;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -25,7 +24,8 @@ public class MainActivity extends AppCompatActivity {
         });
 
         btnAcessoPolicial.setOnClickListener(v -> {
-            Toast.makeText(this, "Funcionalidade Acesso Policial não implementada", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(MainActivity.this, ActivityLoginPolicial.class);
+            startActivity(intent);
         });
     }
 }

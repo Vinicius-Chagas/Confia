@@ -187,10 +187,23 @@
                     android:textColor="@color/colorWhite"
                     android:textStyle="bold"
                     app:backgroundTint="@null"
-                    app:layout_constraintBottom_toTopOf="@id/btnBack"
+                    app:layout_constraintBottom_toTopOf="@id/btnMarcarConcluida"
                     app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintRight_toRightOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/etDescricao" />
+
+                <Button
+                    android:id="@+id/btnMarcarConcluida"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:background="@drawable/gradient_button_background"
+                    android:text="Marcar como Concluída"
+                    android:textColor="@android:color/white"
+                    android:visibility="gone"
+                    tools:visibility="visible" />
 
                 <ProgressBar
                     android:id="@+id/progressBar"
@@ -214,7 +227,7 @@
                     android:textSize="18sp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/btnEnviarDenuncia" />
+                    app:layout_constraintTop_toBottomOf="@+id/btnMarcarConcluida" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.cardview.widget.CardView>

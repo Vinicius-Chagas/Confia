@@ -12,7 +12,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.DenunciaAI"
-        >
+        android:usesCleartextTraffic="true">
 
         <activity
             android:name="com.example.denunciaai.MainActivity"
@@ -30,6 +30,10 @@
         <activity
             android:name=".SuccessActivity"
             android:exported="false" />
+
+        <!-- New activities -->
+        <activity android:name=".ActivityLoginPolicial" />
+        <activity android:name=".ActivityListaDenuncias" />
 
     </application>
 

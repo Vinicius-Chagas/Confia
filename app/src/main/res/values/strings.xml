@@ -21,6 +21,8 @@
     <string name="permission_location_rationale">Precisamos da permissão de localização para esta funcionalidade</string>
     <string name="permission_denied">Permissão negada. A funcionalidade não estará disponível</string>
     <string name="coordenadas_formato">Lat: %1$.4f, Long: %2$.4f</string>
+    <string name="login_label">Seja bem-vindo, oficial.</string>
+
      <string-array name="tipos_de_atividade">
      <item>Selecione uma atividade</item>
      <item>Atividade suspeita</item>

@@ -3,6 +3,9 @@ package com.example.denunciaai.model;
 import com.google.gson.annotations.SerializedName;
 
 public class Denuncia {
+    @SerializedName("id")
+    private Integer id;
+    
     @SerializedName("descricao")
     private String descricao;
     
@@ -24,6 +27,14 @@ public class Denuncia {
         this.latitude = latitude;
         this.longitude = longitude;
         this.dateTime = dateTime;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+    
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     public String getDescricao() {
