@@ -4,53 +4,53 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginStart="8dp"
-    android:layout_marginTop="4dp"
-    android:layout_marginEnd="8dp"
-    android:layout_marginBottom="4dp"
-    app:cardBackgroundColor="#1A1A2E"
+    android:layout_marginStart="16dp"
+    android:layout_marginTop="8dp"
+    android:layout_marginEnd="16dp"
+    android:layout_marginBottom="8dp"
+    app:cardBackgroundColor="#1A1A1A"
     app:cardCornerRadius="8dp"
-    app:cardElevation="4dp">
+    app:cardElevation="2dp">
 
-    <RelativeLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="16dp">
 
         <TextView
             android:id="@+id/tvCategoria"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_alignParentStart="true"
-            android:layout_toStartOf="@id/tvDateTime"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:textColor="#FFD700"
-            android:textSize="16sp"
+            android:textColor="@android:color/white"
+            android:textSize="18sp"
             android:textStyle="bold"
-            tools:text="Atividade Suspeita" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Atividade suspeita" />
 
         <TextView
             android:id="@+id/tvDateTime"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
+            android:layout_marginTop="4dp"
             android:textColor="#AAAAAA"
             android:textSize="14sp"
-            tools:text="23/04/23 14:30" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvCategoria"
+            tools:text="Rua Amazonas, 230 às 23:45" />
 
         <TextView
-            android:id="@+id/tvDescricao"
-            android:layout_width="match_parent"
+            android:id="@+id/tvVerMais"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/tvCategoria"
-            android:layout_marginTop="8dp"
-            android:ellipsize="end"
-            android:maxLines="3"
-            android:textColor="@android:color/white"
+            android:layout_marginTop="12dp"
+            android:text="Clique para ver mais"
+            android:textColor="#4361EE"
             android:textSize="14sp"
-            tools:text="Descrição da denúncia que pode ser bastante longa e precisa ser truncada para não ocupar muito espaço na lista..." />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvDateTime" />
 
-    </RelativeLayout>
-
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>

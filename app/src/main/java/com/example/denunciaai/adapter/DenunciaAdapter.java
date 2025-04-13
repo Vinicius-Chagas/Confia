@@ -55,14 +55,12 @@ public class DenunciaAdapter extends RecyclerView.Adapter<DenunciaAdapter.Denunc
     class DenunciaViewHolder extends RecyclerView.ViewHolder {
         private TextView tvCategoria;
         private TextView tvDateTime;
-        private TextView tvDescricao;
-        
+
         DenunciaViewHolder(@NonNull View itemView) {
             super(itemView);
             tvCategoria = itemView.findViewById(R.id.tvCategoria);
             tvDateTime = itemView.findViewById(R.id.tvDateTime);
-            tvDescricao = itemView.findViewById(R.id.tvDescricao);
-            
+
             itemView.setOnClickListener(v -> {
                 int position = getAdapterPosition();
                 if (position != RecyclerView.NO_POSITION && listener != null) {
@@ -77,13 +75,7 @@ public class DenunciaAdapter extends RecyclerView.Adapter<DenunciaAdapter.Denunc
             // Format date
             String formattedDate = formatDateForDisplay(denuncia.getDateTime());
             tvDateTime.setText(formattedDate);
-            
-            // Limit description to X characters
-            String description = denuncia.getDescricao();
-            if (description != null && description.length() > 100) {
-                description = description.substring(0, 97) + "...";
-            }
-            tvDescricao.setText(description);
+
         }
         
         private String formatDateForDisplay(String isoDateTime) {

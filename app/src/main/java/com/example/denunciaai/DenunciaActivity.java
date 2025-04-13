@@ -185,7 +185,7 @@ public class DenunciaActivity extends AppCompatActivity {
         // Setup listener for the "Marcar como Concluída" button
         btnMarcarConcluida.setOnClickListener(v -> {
             int denunciaId = viewModel.getDenunciaId().getValue();
-            if (denunciaId != null) {
+            if (denunciaId != -1) {
                 viewModel.markAsConcluded(denunciaId);
             } else {
                 Toast.makeText(DenunciaActivity.this, 

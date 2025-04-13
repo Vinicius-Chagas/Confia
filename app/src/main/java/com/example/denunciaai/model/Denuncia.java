@@ -21,9 +21,20 @@ public class Denuncia {
     @SerializedName("dateTime")
     private String dateTime;
 
+    // Constructor for creating new Denuncia (without ID)
     public Denuncia(String descricao, String categoria, Double latitude, Double longitude, String dateTime) {
         this.descricao = descricao;
         this.categoria = categoria;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.dateTime = dateTime;
+    }
+
+    // Constructor for receiving Denuncia from API or Mock (with ID)
+    public Denuncia(Integer id, String categoria, String descricao, Double latitude, Double longitude, String dateTime) {
+        this.id = id;
+        this.categoria = categoria;
+        this.descricao = descricao;
         this.latitude = latitude;
         this.longitude = longitude;
         this.dateTime = dateTime;
