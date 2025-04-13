@@ -40,11 +40,14 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
 
+import com.example.denunciaai.model.Denuncia; // Import Denuncia model
+
 public class DenunciaActivity extends AppCompatActivity {
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1001;
     public static final String EXTRA_IS_VIEW_MODE = "is_view_mode";
-    public static final String EXTRA_DENUNCIA_ID = "denuncia_id";
-    
+    public static final String EXTRA_DENUNCIA_ID = "denuncia_id"; // Keep for potential fallback/other uses
+    public static final String EXTRA_DENUNCIA_OBJECT = "denuncia_object"; // New constant
+
     private DenunciaViewModel viewModel;
     private FusedLocationProviderClient fusedLocationClient;
     
@@ -79,14 +82,23 @@ public class DenunciaActivity extends AppCompatActivity {
         viewModel.setViewMode(isViewMode);
         
         if (isViewMode) {
-            int denunciaId = getIntent().getIntExtra(EXTRA_DENUNCIA_ID, -1);
-            if (denunciaId != -1) {
-                viewModel.setDenunciaId(denunciaId);
-                viewModel.fetchDenunciaById(denunciaId);
+            // Try to get the full Denuncia object first
+            Denuncia denuncia = (Denuncia) getIntent().getSerializableExtra(EXTRA_DENUNCIA_OBJECT);
+            
+            if (denuncia != null) {
+                // If object received, populate ViewModel directly
+                viewModel.populateViewData(denuncia);
             } else {
-                Toast.makeText(this, "ID da denúncia não fornecido", Toast.LENGTH_SHORT).show();
-                finish();
-                return;
+                // Fallback: If object not found, try getting ID and fetching
+                int denunciaId = getIntent().getIntExtra(EXTRA_DENUNCIA_ID, -1);
+                if (denunciaId != -1) {
+                    // viewModel.setDenunciaId(denunciaId); // setDenunciaId is now called within populateViewData or fetchDenunciaById
+                    viewModel.fetchDenunciaById(denunciaId); // Fetch if only ID is available
+                } else {
+                    Toast.makeText(this, "Dados da denúncia não fornecidos", Toast.LENGTH_SHORT).show();
+                    finish();
+                    return;
+                }
             }
         }
         

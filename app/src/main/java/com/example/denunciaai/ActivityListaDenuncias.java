@@ -203,7 +203,8 @@ public class ActivityListaDenuncias extends AppCompatActivity implements Denunci
     public void onDenunciaClick(Denuncia denuncia) {
         Intent intent = new Intent(this, DenunciaActivity.class);
         intent.putExtra(DenunciaActivity.EXTRA_IS_VIEW_MODE, true);
-        intent.putExtra(DenunciaActivity.EXTRA_DENUNCIA_ID, denuncia.getId());
+        // Pass the entire Denuncia object
+        intent.putExtra(DenunciaActivity.EXTRA_DENUNCIA_OBJECT, denuncia); 
         startActivity(intent);
     }
 }

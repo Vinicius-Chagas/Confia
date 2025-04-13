@@ -174,24 +174,8 @@ public class DenunciaViewModel extends ViewModel {
                 isLoading.setValue(false);
                 if (response.isSuccessful() && response.body() != null) {
                     Denuncia denuncia = response.body();
-                    description.setValue(denuncia.getDescricao());
-                    selectedCategory.setValue(denuncia.getCategoria());
-                    latitude.setValue(denuncia.getLatitude());
-                    longitude.setValue(denuncia.getLongitude());
-                    
-                    // Convert ISO datetime to display format
-                    try {
-                        SimpleDateFormat isoFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault());
-                        isoFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-                        Date date = isoFormat.parse(denuncia.getDateTime());
-                        
-                        SimpleDateFormat displayFormat = new SimpleDateFormat("dd/MM/yy HH:mm", Locale.getDefault());
-                        if (date != null) {
-                            dateTimeString.setValue(displayFormat.format(date));
-                        }
-                    } catch (ParseException e) {
-                        dateTimeString.setValue(denuncia.getDateTime());
-                    }
+                    // Use the new method to populate data
+                    populateViewData(denuncia);
                 } else {
                     errorMessage.setValue("Erro ao buscar denúncia: " + response.code());
                 }
@@ -243,5 +227,43 @@ public class DenunciaViewModel extends ViewModel {
             e.printStackTrace();
             return null;
         }
+    }
+
+    // New method to populate LiveData from a Denuncia object
+    public void populateViewData(Denuncia denuncia) {
+        denunciaId.setValue(denuncia.getId());
+        selectedCategory.setValue(denuncia.getCategoria());
+        description.setValue(denuncia.getDescricao());
+        latitude.setValue(denuncia.getLatitude());
+        longitude.setValue(denuncia.getLongitude());
+        
+        // Format date/time for display
+        dateTimeString.setValue(formatDateForDisplay(denuncia.getDateTime()));
+    }
+    
+    // Helper method to format ISO date to display format (extracted logic)
+    private String formatDateForDisplay(String isoDateTime) {
+        if (isoDateTime == null || isoDateTime.isEmpty()) {
+            return "";
+        }
+        try {
+            // Input format (ISO 8601)
+            SimpleDateFormat isoFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault());
+            isoFormat.setTimeZone(TimeZone.getTimeZone("UTC")); // Assuming API returns UTC
+            Date date = isoFormat.parse(isoDateTime);
+
+            // Output format (dd/MM/yyyy HH:mm)
+            SimpleDateFormat displayFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
+            // displayFormat.setTimeZone(TimeZone.getDefault()); // Convert to local time zone for display
+
+            if (date != null) {
+                return displayFormat.format(date);
+            }
+        } catch (ParseException e) {
+            // If parsing fails, return the original string or handle error
+            System.err.println("Error parsing date: " + isoDateTime + " - " + e.getMessage());
+            return isoDateTime; // Fallback to original string
+        }
+        return isoDateTime; // Fallback
     }
 }

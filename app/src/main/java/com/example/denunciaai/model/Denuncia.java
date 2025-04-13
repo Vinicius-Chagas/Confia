@@ -1,8 +1,10 @@
 package com.example.denunciaai.model;
 
 import com.google.gson.annotations.SerializedName;
+import java.io.Serializable; // Import Serializable
 
-public class Denuncia {
+// Implement Serializable
+public class Denuncia implements Serializable {
     @SerializedName("id")
     private Integer id;
     
