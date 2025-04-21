@@ -85,6 +85,7 @@ public class ActivityListaDenuncias extends AppCompatActivity implements Denunci
     
     private void loadDenuncias() {
         try {
+            /*
             // --- MOCK DATA START ---
             progressBar.setVisibility(View.VISIBLE);
             tvEmptyList.setVisibility(View.GONE);
@@ -114,8 +115,8 @@ public class ActivityListaDenuncias extends AppCompatActivity implements Denunci
             }, 1500); // 1.5 second delay
 
             // --- MOCK DATA END ---
-
-            /* --- ORIGINAL API CALL (Commented out) ---
+            */
+            // --- ORIGINAL API CALL (Commented out) ---
             String authToken = getAuthToken();
             if (authToken == null || authToken.isEmpty()) {
                 Toast.makeText(this, "Não autorizado, faça login novamente", Toast.LENGTH_LONG).show();
@@ -165,7 +166,7 @@ public class ActivityListaDenuncias extends AppCompatActivity implements Denunci
                     handleError(t);
                 }
             });
-            */ // --- END OF ORIGINAL API CALL ---
+             // --- END OF ORIGINAL API CALL ---
         } catch (Exception e) {
             handleError(e);
         }

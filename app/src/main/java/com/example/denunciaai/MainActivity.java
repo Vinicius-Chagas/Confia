@@ -23,6 +23,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        System.out.println("iniciando");
+
         Button btnDenuncia = findViewById(R.id.btnDenuncia);
         Button btnAcessoPolicial = findViewById(R.id.btnAcessoPolicial);
 

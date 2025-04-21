@@ -51,10 +51,7 @@ public class ActivityLoginPolicial extends AppCompatActivity {
         
         btnLogin.setOnClickListener(v -> {
             if (validateInputs()) {
-                // loginPolice();
-                Intent intent = new Intent(ActivityLoginPolicial.this, ActivityListaDenuncias.class);
-                startActivity(intent);
-                finish(); 
+                loginPolice();
             }
         });
     }

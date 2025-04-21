@@ -7,45 +7,45 @@ import java.io.Serializable; // Import Serializable
 public class Denuncia implements Serializable {
     @SerializedName("id")
     private Integer id;
-    
+
     @SerializedName("descricao")
     private String descricao;
-    
+
     @SerializedName("categoria")
     private String categoria;
-    
+
     @SerializedName("latitude")
     private Double latitude;
-    
+
     @SerializedName("longitude")
     private Double longitude;
-    
-    @SerializedName("dateTime")
-    private String dateTime;
+
+    @SerializedName("datetime")
+    private String datetime;
 
     // Constructor for creating new Denuncia (without ID)
-    public Denuncia(String descricao, String categoria, Double latitude, Double longitude, String dateTime) {
+    public Denuncia(String descricao, String categoria, Double latitude, Double longitude, String datetime) {
         this.descricao = descricao;
         this.categoria = categoria;
         this.latitude = latitude;
         this.longitude = longitude;
-        this.dateTime = dateTime;
+        this.datetime = datetime;
     }
 
     // Constructor for receiving Denuncia from API or Mock (with ID)
-    public Denuncia(Integer id, String categoria, String descricao, Double latitude, Double longitude, String dateTime) {
+    public Denuncia(Integer id, String categoria, String descricao, Double latitude, Double longitude, String datetime) {
         this.id = id;
         this.categoria = categoria;
         this.descricao = descricao;
         this.latitude = latitude;
         this.longitude = longitude;
-        this.dateTime = dateTime;
+        this.datetime = datetime;
     }
 
     public Integer getId() {
         return id;
     }
-    
+
     public void setId(Integer id) {
         this.id = id;
     }
@@ -83,10 +83,22 @@ public class Denuncia implements Serializable {
     }
 
     public String getDateTime() {
-        return dateTime;
+        return datetime;
     }
 
-    public void setDateTime(String dateTime) {
-        this.dateTime = dateTime;
+    public void setDateTime(String datetime) {
+        this.datetime = datetime;
+    }
+
+    @Override
+    public String toString() {
+        return "Denuncia{" +
+                "id=" + id +
+                ", descricao='" + descricao + '\'' + // Use single quotes around string values for clarity
+                ", categoria='" + categoria + '\'' +
+                ", latitude=" + latitude +
+                ", longitude=" + longitude +
+                ", dateTime='" + datetime + '\'' +
+                '}'; // Include all fields
     }
 }

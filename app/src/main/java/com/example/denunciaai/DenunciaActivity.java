@@ -66,6 +66,7 @@ public class DenunciaActivity extends AppCompatActivity {
     private Calendar selectedCalendar;
     private boolean isViewMode = false;
     private final String[] categorias = {"Selecione", "Atividade Suspeita", "Vandalismo", "Roubo", "Outro"};
+    private ArrayAdapter<String> spinnerAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -119,12 +120,12 @@ public class DenunciaActivity extends AppCompatActivity {
         btnBack = findViewById(R.id.btnBack);
         
         // Setup spinner with custom layouts for white text
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+        spinnerAdapter = new ArrayAdapter<>( // Use the class variable here
                 this,
                 R.layout.spinner_item_white,
-                getResources().getStringArray(R.array.tipos_de_atividade));
-        adapter.setDropDownViewResource(R.layout.spinner_dropdown_item_white);
-        spinnerTipoAtividade.setAdapter(adapter);
+                getResources().getStringArray(R.array.tipos_de_atividade)); // Adapter uses the resource array
+        spinnerAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item_white);
+        spinnerTipoAtividade.setAdapter(spinnerAdapter);
     }
     
     private void setupViewModeUI() {
@@ -150,21 +151,62 @@ public class DenunciaActivity extends AppCompatActivity {
 
     private void setupListeners() {
         btnBack.setOnClickListener(v -> finish());
-        
+
         spinnerTipoAtividade.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            // Flag to prevent listener reacting to programmatic changes by the observer
+            private boolean isProgrammaticSelection = false;
+
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                // If this selection was triggered by the observer, just reset the flag and do nothing
+                if (isProgrammaticSelection) {
+                    System.out.println("Spinner Listener: Ignoring programmatic selection.");
+                    isProgrammaticSelection = false; // Reset for next user interaction
+                    return;
+                }
+
+                // If in view mode, the user shouldn't be changing anything, so do nothing
+                if (isViewMode) {
+                    System.out.println("Spinner Listener: In view mode, ignoring selection change.");
+                    return;
+                }
+
+                // --- Handle USER selection (not programmatic, not view mode) ---
+                String selectedCategory = "";
                 if (position > 0) {
-                    viewModel.setSelectedCategory(categorias[position]);
+                    // Get the selected item directly from the adapter - SAFER!
+                    selectedCategory = parent.getItemAtPosition(position).toString();
                     spinnerTipoAtividade.setBackgroundResource(R.drawable.input);
+                    System.out.println("Spinner Listener: User selected '" + selectedCategory + "'. Updating ViewModel.");
                 } else {
-                    viewModel.setSelectedCategory("");
+                    // User selected the default "Selecione" item
+                    spinnerTipoAtividade.setBackgroundResource(R.drawable.input_error); // Or input if default is valid
+                    System.out.println("Spinner Listener: User selected default item. Updating ViewModel with empty string.");
+                }
+
+                // Only update ViewModel if the value actually changed due to USER interaction
+                // This check might be redundant now due to the isProgrammaticSelection flag, but adds safety
+                if (!selectedCategory.equals(viewModel.getSelectedCategory().getValue())) {
+                    viewModel.setSelectedCategory(selectedCategory);
+                } else {
+                    System.out.println("Spinner Listener: Selected value ('"+selectedCategory+"') matches ViewModel. No update needed.");
                 }
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
-                viewModel.setSelectedCategory("");
+                // Only react if not in view mode
+                if (!isViewMode) {
+                    System.out.println("Spinner Listener: Nothing selected. Updating ViewModel with empty string.");
+                    viewModel.setSelectedCategory("");
+                    spinnerTipoAtividade.setBackgroundResource(R.drawable.input_error);
+                }
+            }
+
+            // Helper method called from the observer before setting selection
+            public void prepareProgrammaticSelect() {
+                System.out.println("Spinner Listener: Preparing for programmatic selection.");
+                isProgrammaticSelection = true;
             }
         });
 
@@ -252,13 +294,52 @@ public class DenunciaActivity extends AppCompatActivity {
 
     private void observeViewModel() {
         viewModel.getSelectedCategory().observe(this, category -> {
-            // Update spinner selection if in view mode
-            if (isViewMode && category != null && !category.isEmpty()) {
-                for (int i = 0; i < categorias.length; i++) {
-                    if (categorias[i].equals(category)) {
-                        spinnerTipoAtividade.setSelection(i);
-                        break;
+            if (isViewMode && spinnerAdapter != null) {
+                System.out.println("Activity Observer received category (in view mode): " + category);
+
+                if (category != null && !category.isEmpty()) {
+                    int position = spinnerAdapter.getPosition(category);
+                    if (position >= 0) {
+                        System.out.println("Activity Category '" + category + "' found at position: " + position + ". Setting spinner selection.");
+
+                        // Prepare the listener to ignore the upcoming programmatic selection
+                        if (spinnerTipoAtividade.getOnItemSelectedListener() instanceof AdapterView.OnItemSelectedListener) {
+                            // You might need to cast to your specific anonymous class or create a named class
+                            // For simplicity, let's assume direct access or refactor listener to a named class
+                            // If using anonymous class, direct casting is complex. A simpler flag in Activity might work:
+                            // this.isObserverSettingSpinner = true; // Set flag before setSelection
+                        }
+                        // --- IMPORTANT: Call setSelection ---
+                        spinnerTipoAtividade.setSelection(position);
+                        // this.isObserverSettingSpinner = false; // Reset flag after (needs corresponding check in listener)
+
+                        // SAFER APPROACH: Refactor listener to a named class or use a flag as shown above.
+                        // If you refactor OnItemSelectedListener to be a named inner class or separate class,
+                        // you can add the prepareProgrammaticSelect() method and call it easily:
+                        // ((MyCustomSpinnerListener) spinnerTipoAtividade.getOnItemSelectedListener()).prepareProgrammaticSelect();
+                        // spinnerTipoAtividade.setSelection(position);
+
+
+                    } else {
+                        System.out.println("Activity Category '" + category + "' from backend not found... Setting spinner to default.");
+                        // ((MyCustomSpinnerListener) spinnerTipoAtividade.getOnItemSelectedListener()).prepareProgrammaticSelect(); // Prepare listener
+                        spinnerTipoAtividade.setSelection(0); // Set to default
                     }
+                } else {
+                    System.out.println("Activity Observer received null or empty category... Setting spinner to default.");
+                    // ((MyCustomSpinnerListener) spinnerTipoAtividade.getOnItemSelectedListener()).prepareProgrammaticSelect(); // Prepare listener
+                    spinnerTipoAtividade.setSelection(0); // Set to default
+                }
+            }  else if (!isViewMode) {
+                // This block is for when NOT in view mode (creating a new denuncia)
+                // The UI spinner position should be controlled by user interaction via the listener,
+                // which then updates the ViewModel. The observer is primarily for the initial state
+                // or potentially if the category was loaded asynchronously in create mode.
+                System.out.println("Activity Observer received category (in create mode): " + category);
+                // No programmatic setSelection here in create mode, let the user/listener control it.
+                // However, you might want to set the spinner to the default "Selecione" if the ViewModel category is null/empty initially in create mode.
+                if (category == null || category.isEmpty()) {
+                    spinnerTipoAtividade.setSelection(0);
                 }
             }
         });
@@ -307,6 +388,16 @@ public class DenunciaActivity extends AppCompatActivity {
                 Toast.makeText(this, "Denúncia marcada como concluída com sucesso!", 
                         Toast.LENGTH_SHORT).show();
                 finish(); // Return to the list
+            }
+        });
+
+        viewModel.getDateTimeString().observe(this, dateTime -> {
+            System.out.println("Activity Observer received formatted date time: " + dateTime); // Log the formatted date
+            etDataHora.setText(dateTime);
+            if (dateTime != null && !dateTime.isEmpty()) {
+                etDataHora.setBackgroundResource(R.drawable.input);
+            } else if (isViewMode) { // Optional: Handle empty date string visually in view mode
+                etDataHora.setBackgroundResource(R.drawable.input_error); // Or some other indicator
             }
         });
     }

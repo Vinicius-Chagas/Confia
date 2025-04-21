@@ -80,6 +80,11 @@ public class DenunciaAdapter extends RecyclerView.Adapter<DenunciaAdapter.Denunc
         
         private String formatDateForDisplay(String isoDateTime) {
             try {
+                if (isoDateTime == null) {
+                    System.out.println("Received null isoDateTime for formatting."); // Log the null input
+                    // You can return a default string, like empty string or a placeholder
+                    return ""; // Or return "Data indisponível" or similar
+                }
                 SimpleDateFormat isoFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault());
                 isoFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
                 Date date = isoFormat.parse(isoDateTime);
