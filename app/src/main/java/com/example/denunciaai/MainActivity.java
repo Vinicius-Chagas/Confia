@@ -3,10 +3,18 @@ package com.example.denunciaai;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.denunciaai.R;
+import com.example.denunciaai.api.ApiClient;
+import com.example.denunciaai.api.ApiService;
+
+import java.util.Map;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
 

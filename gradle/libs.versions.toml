@@ -15,6 +15,7 @@ retrofit = "2.9.0"
 # Testing
 androidxJunit = "1.1.5"
 swiperefreshlayout = "1.1.0"
+lifecycleViewmodelAndroid = "2.8.7"
 
 
 
@@ -33,7 +34,8 @@ play-services-location = { group = "com.google.android.gms", name = "play-servic
 # AndroidX Lifecycle (ViewModel & LiveData)
 lifecycle-viewmodel = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycle" } # Added -ktx for Kotlin
 lifecycle-livedata = { group = "androidx.lifecycle", name = "lifecycle-livedata-ktx", version.ref = "lifecycle" }
-swiperefreshlayout = { group = "androidx.swiperefreshlayout", name = "swiperefreshlayout", version.ref = "swiperefreshlayout" } # Added -ktx for Kotlin
+swiperefreshlayout = { group = "androidx.swiperefreshlayout", name = "swiperefreshlayout", version.ref = "swiperefreshlayout" }
+lifecycle-viewmodel-android = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-android", version.ref = "lifecycleViewmodelAndroid" } # Added -ktx for Kotlin
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

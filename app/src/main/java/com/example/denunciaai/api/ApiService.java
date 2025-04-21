@@ -5,6 +5,7 @@ import com.example.denunciaai.model.LoginRequest;
 import com.example.denunciaai.model.LoginResponse;
 
 import java.util.List;
+import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -29,4 +30,7 @@ public interface ApiService {
     
     @POST("police/login")
     Call<LoginResponse> loginPolice(@Body LoginRequest loginRequest);
+
+    @GET("/")
+    Call<Map<String, String>> helloWorld();
 }

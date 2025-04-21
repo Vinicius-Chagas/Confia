@@ -27,7 +27,6 @@ import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.denunciaai.viewmodel.DenunciaViewModel;
-import com.example.denunciaai.R;
 import android.content.Context;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -40,13 +39,13 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
 
-import com.example.denunciaai.model.Denuncia; // Import Denuncia model
+import com.example.denunciaai.model.Denuncia;
 
 public class DenunciaActivity extends AppCompatActivity {
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1001;
     public static final String EXTRA_IS_VIEW_MODE = "is_view_mode";
-    public static final String EXTRA_DENUNCIA_ID = "denuncia_id"; // Keep for potential fallback/other uses
-    public static final String EXTRA_DENUNCIA_OBJECT = "denuncia_object"; // New constant
+    public static final String EXTRA_DENUNCIA_ID = "denuncia_id"; 
+    public static final String EXTRA_DENUNCIA_OBJECT = "denuncia_object";
 
     private DenunciaViewModel viewModel;
     private FusedLocationProviderClient fusedLocationClient;
