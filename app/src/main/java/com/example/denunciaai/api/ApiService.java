@@ -1,6 +1,7 @@
 package com.example.denunciaai.api;
 
 import com.example.denunciaai.model.Denuncia;
+import com.example.denunciaai.model.DenunciaValidationRequest;
 import com.example.denunciaai.model.LoginRequest;
 import com.example.denunciaai.model.LoginResponse;
 
@@ -30,6 +31,12 @@ public interface ApiService {
     
     @POST("police/login")
     Call<LoginResponse> loginPolice(@Body LoginRequest loginRequest);
+
+    @POST("denuncias/validar")
+    Call<Object> validarDenuncia(@Body DenunciaValidationRequest request, @Header("Authorization") String token);
+
+    @POST("denuncias/rejeitar")
+    Call<Object> rejeitarDenuncia(@Body DenunciaValidationRequest request, @Header("Authorization") String token);
 
     @GET("/")
     Call<Map<String, String>> helloWorld();

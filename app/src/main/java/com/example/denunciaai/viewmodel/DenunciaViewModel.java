@@ -1,12 +1,15 @@
 package com.example.denunciaai.viewmodel;
 
+import android.app.Application;
+import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.ViewModel;
 
 import com.example.denunciaai.api.ApiClient;
 import com.example.denunciaai.api.ApiService;
 import com.example.denunciaai.model.Denuncia;
+import com.example.denunciaai.model.DenunciaValidationRequest;
+import com.example.denunciaai.utils.AuthManager;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -19,8 +22,15 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class DenunciaViewModel extends ViewModel {
+public class DenunciaViewModel extends AndroidViewModel {
+    
+    private AuthManager authManager;
     private final MutableLiveData<String> selectedCategory = new MutableLiveData<>();
+    
+    public DenunciaViewModel(Application application) {
+        super(application);
+        authManager = AuthManager.getInstance(application);
+    }
     private final MutableLiveData<Double> latitude = new MutableLiveData<>();
     private final MutableLiveData<Double> longitude = new MutableLiveData<>();
     private final MutableLiveData<String> dateTimeString = new MutableLiveData<>();
@@ -31,6 +41,9 @@ public class DenunciaViewModel extends ViewModel {
     private final MutableLiveData<Boolean> isViewMode = new MutableLiveData<>(false);
     private final MutableLiveData<Integer> denunciaId = new MutableLiveData<>();
     private final MutableLiveData<Boolean> markAsConcludedSuccess = new MutableLiveData<>(false);
+    private final MutableLiveData<String> userUUID = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> validationSuccess = new MutableLiveData<>(false);
+    private final MutableLiveData<Boolean> rejectionSuccess = new MutableLiveData<>(false);
 
     public LiveData<String> getSelectedCategory() {
         return selectedCategory;
@@ -101,6 +114,22 @@ public class DenunciaViewModel extends ViewModel {
         return markAsConcludedSuccess;
     }
 
+    public LiveData<String> getUserUUID() {
+        return userUUID;
+    }
+
+    public void setUserUUID(String uuid) {
+        userUUID.setValue(uuid);
+    }
+
+    public LiveData<Boolean> isValidationSuccess() {
+        return validationSuccess;
+    }
+
+    public LiveData<Boolean> isRejectionSuccess() {
+        return rejectionSuccess;
+    }
+
     public boolean validateForm() {
         if (selectedCategory.getValue() == null || selectedCategory.getValue().isEmpty()) {
             errorMessage.setValue("Selecione um tipo de atividade");
@@ -159,7 +188,8 @@ public class DenunciaViewModel extends ViewModel {
                 selectedCategory.getValue(),
                 latitude.getValue(),
                 longitude.getValue(),
-                isoDateTime
+                isoDateTime,
+                userUUID.getValue()
         );
 
         System.out.println("denuncia: " + denuncia.toString());
@@ -248,6 +278,76 @@ public class DenunciaViewModel extends ViewModel {
             public void onFailure(Call<Object> call, Throwable t) {
                 isLoading.setValue(false);
                 errorMessage.setValue("Erro ao marcar denúncia como concluída: " + t.getMessage());
+            }
+        });
+    }
+
+    public void validarDenuncia(int id) {
+        isLoading.setValue(true);
+        
+        DenunciaValidationRequest request = new DenunciaValidationRequest(id, "validar");
+        
+        ApiService apiService = ApiClient.getClient().create(ApiService.class);
+        
+        String authToken = authManager.getFormattedAuthToken();
+        if (authToken == null) {
+            isLoading.setValue(false);
+            errorMessage.setValue("Token de autorização não encontrado. Faça login novamente.");
+            return;
+        }
+        
+        Call<Object> call = apiService.validarDenuncia(request, authToken);
+        
+        call.enqueue(new Callback<Object>() {
+            @Override
+            public void onResponse(Call<Object> call, Response<Object> response) {
+                isLoading.setValue(false);
+                if (response.isSuccessful()) {
+                    validationSuccess.setValue(true);
+                } else {
+                    errorMessage.setValue("Erro ao validar denúncia: " + response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Object> call, Throwable t) {
+                isLoading.setValue(false);
+                errorMessage.setValue("Erro ao validar denúncia: " + t.getMessage());
+            }
+        });
+    }
+
+    public void rejeitarDenuncia(int id) {
+        isLoading.setValue(true);
+        
+        DenunciaValidationRequest request = new DenunciaValidationRequest(id, "rejeitar");
+        
+        ApiService apiService = ApiClient.getClient().create(ApiService.class);
+        
+        String authToken = authManager.getFormattedAuthToken();
+        if (authToken == null) {
+            isLoading.setValue(false);
+            errorMessage.setValue("Token de autorização não encontrado. Faça login novamente.");
+            return;
+        }
+        
+        Call<Object> call = apiService.rejeitarDenuncia(request, authToken);
+        
+        call.enqueue(new Callback<Object>() {
+            @Override
+            public void onResponse(Call<Object> call, Response<Object> response) {
+                isLoading.setValue(false);
+                if (response.isSuccessful()) {
+                    rejectionSuccess.setValue(true);
+                } else {
+                    errorMessage.setValue("Erro ao rejeitar denúncia: " + response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Object> call, Throwable t) {
+                isLoading.setValue(false);
+                errorMessage.setValue("Erro ao rejeitar denúncia: " + t.getMessage());
             }
         });
     }
