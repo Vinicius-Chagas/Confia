@@ -27,6 +27,7 @@ import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.denunciaai.viewmodel.DenunciaViewModel;
+import com.example.denunciaai.utils.UUIDManager;
 import android.content.Context;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -57,6 +58,8 @@ public class DenunciaActivity extends AppCompatActivity {
     private EditText etDescricao;
     private Button btnEnviarDenuncia;
     private Button btnMarcarConcluida;  // New button for marking as concluded
+    private Button btnValidarDenuncia;  // New button for validating
+    private Button btnRejeitarDenuncia; // New button for rejecting
     private ProgressBar progressBar;
     private TextView btnBack;
 
@@ -116,6 +119,8 @@ public class DenunciaActivity extends AppCompatActivity {
         etDescricao = findViewById(R.id.etDescricao);
         btnEnviarDenuncia = findViewById(R.id.btnEnviarDenuncia);
         btnMarcarConcluida = findViewById(R.id.btnMarcarConcluida);  // Add this to your layout
+        btnValidarDenuncia = findViewById(R.id.btnValidarDenuncia);
+        btnRejeitarDenuncia = findViewById(R.id.btnRejeitarDenuncia);
         progressBar = findViewById(R.id.progressBar);
         btnBack = findViewById(R.id.btnBack);
         
@@ -141,11 +146,13 @@ public class DenunciaActivity extends AppCompatActivity {
             // Change button visibility
             btnEnviarDenuncia.setVisibility(View.GONE);
             btnMarcarConcluida.setVisibility(View.VISIBLE);
+            findViewById(R.id.layoutValidationButtons).setVisibility(View.VISIBLE);
         } else {
             setTitle("Nova Denúncia");
             
-            // Hide the "Marcar como Concluída" button in create mode
+            // Hide the buttons in create mode
             btnMarcarConcluida.setVisibility(View.GONE);
+            findViewById(R.id.layoutValidationButtons).setVisibility(View.GONE);
         }
     }
 
@@ -231,6 +238,12 @@ public class DenunciaActivity extends AppCompatActivity {
         btnEnviarDenuncia.setOnClickListener(v -> {
             if (validateFields()) {
                 viewModel.setDescription(etDescricao.getText().toString());
+                
+                // Obter e definir o UUID do usuário
+                UUIDManager uuidManager = UUIDManager.getInstance(this);
+                String userUUID = uuidManager.getUserUUID();
+                viewModel.setUserUUID(userUUID);
+                
                 viewModel.submitDenuncia();
             }
         });
@@ -243,6 +256,28 @@ public class DenunciaActivity extends AppCompatActivity {
             } else {
                 Toast.makeText(DenunciaActivity.this, 
                         "Não foi possível concluir a denúncia", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        // Setup listener for the "Validar" button
+        btnValidarDenuncia.setOnClickListener(v -> {
+            int denunciaId = viewModel.getDenunciaId().getValue();
+            if (denunciaId != -1) {
+                viewModel.validarDenuncia(denunciaId);
+            } else {
+                Toast.makeText(DenunciaActivity.this, 
+                        "Não foi possível validar a denúncia", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        // Setup listener for the "Rejeitar" button
+        btnRejeitarDenuncia.setOnClickListener(v -> {
+            int denunciaId = viewModel.getDenunciaId().getValue();
+            if (denunciaId != -1) {
+                viewModel.rejeitarDenuncia(denunciaId);
+            } else {
+                Toast.makeText(DenunciaActivity.this, 
+                        "Não foi possível rejeitar a denúncia", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -369,6 +404,8 @@ public class DenunciaActivity extends AppCompatActivity {
             progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
             btnEnviarDenuncia.setEnabled(!isLoading);
             btnMarcarConcluida.setEnabled(!isLoading);
+            btnValidarDenuncia.setEnabled(!isLoading);
+            btnRejeitarDenuncia.setEnabled(!isLoading);
         });
 
         viewModel.getErrorMessage().observe(this, errorMsg -> {
@@ -385,7 +422,23 @@ public class DenunciaActivity extends AppCompatActivity {
         
         viewModel.isMarkAsConcludedSuccess().observe(this, isSuccess -> {
             if (isSuccess) {
-                Toast.makeText(this, "Denúncia marcada como concluída com sucesso!", 
+                Toast.makeText(this, getString(R.string.msg_denuncia_concluida), 
+                        Toast.LENGTH_SHORT).show();
+                finish(); // Return to the list
+            }
+        });
+
+        viewModel.isValidationSuccess().observe(this, isSuccess -> {
+            if (isSuccess) {
+                Toast.makeText(this, getString(R.string.msg_denuncia_validada), 
+                        Toast.LENGTH_SHORT).show();
+                finish(); // Return to the list
+            }
+        });
+
+        viewModel.isRejectionSuccess().observe(this, isSuccess -> {
+            if (isSuccess) {
+                Toast.makeText(this, getString(R.string.msg_denuncia_rejeitada), 
                         Toast.LENGTH_SHORT).show();
                 finish(); // Return to the list
             }

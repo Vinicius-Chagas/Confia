@@ -23,13 +23,21 @@ public class Denuncia implements Serializable {
     @SerializedName("datetime")
     private String datetime;
 
+    @SerializedName("userUUID")
+    private String userUUID;
+
+    @SerializedName("status")
+    private String status; // "pendente", "validada", "rejeitada"
+
     // Constructor for creating new Denuncia (without ID)
-    public Denuncia(String descricao, String categoria, Double latitude, Double longitude, String datetime) {
+    public Denuncia(String descricao, String categoria, Double latitude, Double longitude, String datetime, String userUUID) {
         this.descricao = descricao;
         this.categoria = categoria;
         this.latitude = latitude;
         this.longitude = longitude;
         this.datetime = datetime;
+        this.userUUID = userUUID;
+        this.status = "pendente"; // Status padrão
     }
 
     // Constructor for receiving Denuncia from API or Mock (with ID)
@@ -40,6 +48,19 @@ public class Denuncia implements Serializable {
         this.latitude = latitude;
         this.longitude = longitude;
         this.datetime = datetime;
+        this.status = "pendente"; // Status padrão
+    }
+
+    // Constructor completo com todos os campos
+    public Denuncia(Integer id, String categoria, String descricao, Double latitude, Double longitude, String datetime, String userUUID, String status) {
+        this.id = id;
+        this.categoria = categoria;
+        this.descricao = descricao;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.datetime = datetime;
+        this.userUUID = userUUID;
+        this.status = status;
     }
 
     public Integer getId() {
@@ -90,6 +111,22 @@ public class Denuncia implements Serializable {
         this.datetime = datetime;
     }
 
+    public String getUserUUID() {
+        return userUUID;
+    }
+
+    public void setUserUUID(String userUUID) {
+        this.userUUID = userUUID;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
     @Override
     public String toString() {
         return "Denuncia{" +
@@ -99,6 +136,8 @@ public class Denuncia implements Serializable {
                 ", latitude=" + latitude +
                 ", longitude=" + longitude +
                 ", dateTime='" + datetime + '\'' +
+                ", userUUID='" + userUUID + '\'' +
+                ", status='" + status + '\'' +
                 '}'; // Include all fields
     }
 }
